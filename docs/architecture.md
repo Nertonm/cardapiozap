@@ -38,4 +38,7 @@
   sem dependencia do homelab estar online
 - **Homelab so para sessao WhatsApp**: Separacao clara entre estado
   (sessao persistente) e processamento (stateless)
+- **Duas opcoes de deploy no homelab**: Baremetal (Node.js direto, sem Docker)
+  ou Docker Compose. O script `setup-baremetal.sh` automatiza a instalacao
+  baremetal completa
 - **Cloudflare Tunnel**: Sem port-forward, HTTPS automatico, protecao DDoS

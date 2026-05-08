@@ -1,17 +1,37 @@
-# Guia de Operações
+# Guia de Operacoes
 
 ## Setup inicial
 
-### 1. Homelab — Evolution API + Cloudflare Tunnel
+### 1. Homelab
+
+**Baremetal (recomendado para LXC/VM):**
+
+```bash
+cd homelab
+
+# Com dominio proprio:
+./setup-baremetal.sh cardapiozap.seu-dominio.com suachaveglobal
+
+# Sem dominio (Quick Tunnel):
+./setup-baremetal.sh --quick suachaveglobal
+
+# Com auto-update do GitHub Secret:
+./setup-baremetal.sh --quick suachaveglobal "" seu-usuario/repo ghp_token
+```
+
+O script instala tudo e exibe as credenciais no final. Veja `homelab/proxmox.md`.
+
+**Docker:**
 
 ```bash
 cd homelab
 cp .env.example .env
-# Edite .env com suas credenciais
-docker-compose up -d
+docker compose up -d
 ```
 
-### 2. Criar instância WhatsApp
+### 2. Instancia WhatsApp
+
+O script baremetal cria a instancia automaticamente. Para Docker, faca manualmente:
 
 Acesse o painel: `http://localhost:8080/manager`
 

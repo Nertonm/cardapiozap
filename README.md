@@ -25,11 +25,14 @@ bot/                    Codigo do bot
   cardapio.yml          Execucao seg-sex 07:30 BRT
   keepalive.yml         Heartbeat mensal
 homelab/
-  docker-compose.yml    Evolution API + Cloudflare Tunnel
-  setup.sh              Setup inicial
+  docker-compose.yml    Evolution API + Cloudflare Tunnel (Docker)
+  setup-baremetal.sh    Instalacao baremetal (Node.js direto)
+  setup.sh              Setup interativo (Docker)
   healthcheck.sh        Verificacao de saude
+  update-github-secret.sh  Auto-update do secret no GitHub
   cloudflare-tunnel.md  Guia do tunnel
-  .env.example          Template de credenciais
+  proxmox.md            Deploy em LXC no Proxmox
+  .env.example          Template de credenciais (Docker)
 docs/
   architecture.md       Detalhes tecnicos
   operations.md         Guia de operacao
@@ -42,15 +45,27 @@ docs/
 
 ### Homelab
 
+Duas opcoes: baremetal (recomendado) ou Docker.
+
+**Baremetal (LXC/VM):**
+
+```bash
+cd homelab
+./setup-baremetal.sh --quick suachavemestra
+```
+
+O script instala Node.js, Evolution API, cria instancia WhatsApp,
+configura Cloudflare Tunnel e gera QR Code. Veja `homelab/proxmox.md`.
+
+**Docker:**
+
 ```bash
 cd homelab
 cp .env.example .env
-# Preencher credenciais no .env
-docker-compose up -d
+docker compose up -d
 ```
 
-Acessar `http://localhost:8080/manager`, criar instancia `cardapiozap`,
-escanear QR Code.
+Acessar `http://localhost:8080/manager`, criar instancia, escanear QR Code.
 
 ### Cloudflare Tunnel
 
