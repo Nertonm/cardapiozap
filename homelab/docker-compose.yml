@@ -1,0 +1,42 @@
+services:
+  evolution-api:
+    image: atendai/evolution-api:latest
+    container_name: evolution-api
+    restart: unless-stopped
+    ports:
+      # Bind apenas em localhost — o Cloudflare Tunnel fará a exposição externa
+      - "127.0.0.1:8080:8080"
+    volumes:
+      # Persiste as sessões do WhatsApp
+      - evolution_instances:/evolution/instances
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - app_net
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    networks:
+      - app_net
+    depends_on:
+      evolution-api:
+        condition: service_healthy
+
+volumes:
+  evolution_instances:
+    name: evolution_instances
+
+networks:
+  app_net:
+    name: cardapiozap_net
