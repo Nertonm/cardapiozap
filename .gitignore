@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Homelab — NUNCA commitar o .env real
+homelab/.env
+
+# Cloudflare Tunnel — credenciais sensíveis
+homelab/cloudflared/*.json
+homelab/cloudflared/cert.pem
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testes
+.pytest_cache/
+htmlcov/
+.coverage
+
+# PDFs baixados durante testes
+*.pdf
