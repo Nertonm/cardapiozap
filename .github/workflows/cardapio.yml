@@ -1,0 +1,43 @@
+name: Enviar Cardápio
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Dias úteis (seg-sex) às 10:30 UTC = 07:30 BRT
+    - cron: "30 10 * * 1-5"
+
+jobs:
+  cardapio:
+    name: Scraping, conversão PDF→PNG e envio
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('bot/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Instalar dependências
+        run: pip install -r bot/requirements.txt
+
+      - name: Executar bot
+        env:
+          CARDAPIO_URL: ${{ vars.CARDAPIO_URL || 'https://www.ufca.edu.br/assuntos-estudantis/refeitorio-universitario/cardapios/' }}
+          EVOLUTION_API_URL: ${{ secrets.EVOLUTION_API_URL }}
+          EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
+          EVOLUTION_INSTANCE: ${{ secrets.EVOLUTION_INSTANCE }}
+          RECIPIENTS: ${{ secrets.RECIPIENTS }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL || 'INFO' }}
+        run: python -m bot.main

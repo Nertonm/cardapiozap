@@ -1,0 +1,38 @@
+name: Keepalive do Repositório
+
+on:
+  schedule:
+    # Executa no primeiro dia de cada mês às 06:00 UTC
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    name: Atualizar heartbeat para evitar desativação do cron
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Atualizar arquivo de heartbeat
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/HEARTBEAT
+
+      - name: Commit e push (se houver mudança)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add .github/HEARTBEAT
+            git commit -m "chore: keepalive heartbeat $(date -u +%Y-%m)"
+            git push
+          else
+            echo "Nenhuma mudança para commitar."
+          fi
