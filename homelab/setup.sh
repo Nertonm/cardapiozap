@@ -67,6 +67,7 @@ info "Subindo containers..."
 # Garantir que as portas nao conflitem (bind so em localhost)
 export COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
 
+docker compose pull evolution-api
 docker compose up -d
 
 info "Aguardando Evolution API..."
