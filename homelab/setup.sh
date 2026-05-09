@@ -119,7 +119,9 @@ fi
 # -----------------------------------------------------------
 # 5. Cloudflare Tunnel
 # -----------------------------------------------------------
-if [ ! -f cloudflared/cert.pem ]; then
+if [ -n "${DOMINIO:-}" ]; then
+  # Named tunnel (com dominio proprio)
+  if [ ! -f cloudflared/cert.pem ]; then
     echo ""
     echo "=============================================="
     echo "  Autenticacao Cloudflare Tunnel pendente"
@@ -131,29 +133,35 @@ if [ ! -f cloudflared/cert.pem ]; then
     echo "  Siga o link no navegador. Depois rode este script novamente."
     echo ""
     exit 0
+  fi
+
+  if ! docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
+      cloudflare/cloudflared tunnel list 2>/dev/null | grep -q cardapiozap; then
+      docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
+          cloudflare/cloudflared tunnel create cardapiozap
+  fi
+
+  TUNNEL_ID=$(docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
+      cloudflare/cloudflared tunnel list --output json 2>/dev/null | \
+      grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+  docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
+      cloudflare/cloudflared tunnel route dns cardapiozap "$DOMINIO" 2>/dev/null || \
+      warn "Configure DNS: CNAME ${DOMINIO} -> ${TUNNEL_ID}.cfargotunnel.com"
+
+  docker compose up -d cloudflare-tunnel
+  log "Tunnel rodando"
+else
+  # Quick Tunnel (URL efemera, sem dominio)
+  info "Quick Tunnel — aguardando URL..."
+  sleep 5
+  TUNNEL_URL=$(docker compose logs cloudflare-tunnel 2>/dev/null | grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' | tail -1 || true)
+  if [ -z "$TUNNEL_URL" ]; then
+    warn "Tunnel ainda subindo, verifique: docker compose logs cloudflare-tunnel"
+  else
+    log "Tunnel URL: ${TUNNEL_URL}"
+  fi
 fi
-
-# Verificar se tunnel ja existe
-if ! docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
-    cloudflare/cloudflared tunnel list 2>/dev/null | grep -q cardapiozap; then
-    docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
-        cloudflare/cloudflared tunnel create cardapiozap
-fi
-
-TUNNEL_ID=$(docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
-    cloudflare/cloudflared tunnel list --output json 2>/dev/null | \
-    grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
-
-if [ -n "${DOMINIO:-}" ]; then
-    info "Tunnel para ${DOMINIO}..."
-    docker run --rm -v "$(pwd)/cloudflared:/home/nonroot/.cloudflared" \
-        cloudflare/cloudflared tunnel route dns cardapiozap "$DOMINIO" 2>/dev/null || \
-        warn "Configure DNS: CNAME ${DOMINIO} -> ${TUNNEL_ID}.cfargotunnel.com"
-fi
-
-docker compose up -d cloudflare-tunnel
-log "Tunnel rodando"
-docker compose logs cloudflare-tunnel | tail -5
 
 # -----------------------------------------------------------
 # Resumo
@@ -177,7 +185,7 @@ if [ -n "${DOMINIO:-}" ]; then
     echo "  EVOLUTION_API_URL   = https://${DOMINIO}"
 else
     echo "GitHub Secrets:"
-    echo "  EVOLUTION_API_URL   = <url-do-tunnel>"
+    echo "  EVOLUTION_API_URL   = $(docker compose logs cloudflare-tunnel 2>/dev/null | grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' | tail -1 || echo '<url-do-quick-tunnel>')"
 fi
 
 echo "  EVOLUTION_API_KEY    = ${INSTANCE_KEY}"

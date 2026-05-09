@@ -51,9 +51,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflare-tunnel
     restart: unless-stopped
-    command: tunnel --config /etc/cloudflared/config.yml run
-    volumes:
-      - ./cloudflared:/etc/cloudflared
+    command: tunnel --url http://evolution-api:8080
     networks:
       - app_net
     depends_on:
