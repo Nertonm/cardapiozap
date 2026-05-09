@@ -71,14 +71,14 @@ docker compose up -d
 
 info "Aguardando Evolution API..."
 for i in $(seq 1 30); do
-    if curl -sf http://localhost:8080/ >/dev/null 2>&1; then
+    if curl -sf http://localhost:8080/manager >/dev/null 2>&1; then
         log "Evolution API respondendo"
         break
     fi
     sleep 2
 done
 
-if ! curl -sf http://localhost:8080/ >/dev/null 2>&1; then
+if ! curl -sf http://localhost:8080/manager >/dev/null 2>&1; then
     docker compose logs evolution-api
     err "Evolution API nao subiu"
 fi
