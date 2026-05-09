@@ -24,6 +24,7 @@ O `.gitignore` deve incluir:
 ```
 homelab/.env
 homelab/cloudflared/*.json
+homelab/cloudflared/cert.pem
 ```
 
 ## Exposição da Evolution API
@@ -67,7 +68,7 @@ O módulo `config.py` valida todas as variáveis obrigatórias antes de iniciar:
 ### Proteção em logs
 
 - API keys NUNCA aparecem em logs
-- Corpos de resposta HTTP sao truncados em 300 caracteres
+- Corpos de resposta HTTP sao truncados (200 chars no scraper, 300 no sender)
 - Dados binários (PDF, imagem) nunca são logados integralmente
 - Destinatários são exibidos parcialmente em logs (últimos dígitos ocultos)
 

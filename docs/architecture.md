@@ -25,7 +25,7 @@
 
 1. **Scraper** faz GET na pagina de cardapios da UFCA
 2. Extrai links para `documentos.ufca.edu.br/?post_type=doc&p=N`
-3. Segue a cadeia de redirects (301) ate o PDF final
+3. Segue a cadeia de redirects (301/302/307/308) ate o PDF final
 4. Confirma que o conteudo e PDF checando magic bytes `%PDF-`
 5. **pdf_converter** renderiza a pagina do PDF como PNG (150 DPI)
 6. **Sender** codifica em base64 e faz POST para Evolution API
@@ -38,7 +38,4 @@
   sem dependencia do homelab estar online
 - **Homelab so para sessao WhatsApp**: Separacao clara entre estado
   (sessao persistente) e processamento (stateless)
-- **Duas opcoes de deploy no homelab**: Baremetal (Node.js direto, sem Docker)
-  ou Docker Compose. O script `setup-baremetal.sh` automatiza a instalacao
-  baremetal completa
 - **Cloudflare Tunnel**: Sem port-forward, HTTPS automatico, protecao DDoS

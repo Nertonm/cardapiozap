@@ -51,7 +51,7 @@ Depois acesse o painel `/manager` para criar nova instancia e escanear QR Code.
 ```bash
 docker logs cloudflare-tunnel
 docker exec cloudflare-tunnel wget -qO- http://evolution-api:8080/
-docker-compose restart cloudflare-tunnel
+docker compose restart cloudflare-tunnel
 ```
 
 Se usar Quick Tunnel (trycloudflare), a URL efemera muda a cada reinicio.

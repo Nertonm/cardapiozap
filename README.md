@@ -25,14 +25,12 @@ bot/                    Codigo do bot
   cardapio.yml          Execucao seg-sex 07:30 BRT
   keepalive.yml         Heartbeat mensal
 homelab/
-  docker-compose.yml    Evolution API + Cloudflare Tunnel (Docker)
-  setup-baremetal.sh    Instalacao baremetal (Node.js direto)
-  setup.sh              Setup interativo (Docker)
+  docker-compose.yml    Evolution API + Cloudflare Tunnel
+  setup.sh              Instalacao automatizada
   healthcheck.sh        Verificacao de saude
-  update-github-secret.sh  Auto-update do secret no GitHub
   cloudflare-tunnel.md  Guia do tunnel
   proxmox.md            Deploy em LXC no Proxmox
-  .env.example          Template de credenciais (Docker)
+  .env.example          Template de credenciais
 docs/
   architecture.md       Detalhes tecnicos
   operations.md         Guia de operacao
@@ -43,33 +41,17 @@ docs/
 
 ## Configuracao
 
-### Homelab
-
-Duas opcoes: baremetal (recomendado) ou Docker.
-
-**Baremetal (LXC/VM):**
-
-```bash
-cd homelab
-./setup-baremetal.sh --quick suachavemestra
-```
-
-O script instala Node.js, Evolution API, cria instancia WhatsApp,
-configura Cloudflare Tunnel e gera QR Code. Veja `homelab/proxmox.md`.
-
-**Docker:**
+### Homelab (LXC/VM com Docker)
 
 ```bash
 cd homelab
 cp .env.example .env
-docker compose up -d
+# Preencher AUTHENTICATION_API_KEY e AUTHENTICATION_INSTANCE_API_KEY
+./setup.sh
 ```
 
-Acessar `http://localhost:8080/manager`, criar instancia, escanear QR Code.
-
-### Cloudflare Tunnel
-
-Seguir `homelab/cloudflare-tunnel.md`.
+O script instala Docker, sobe Evolution API + Cloudflare Tunnel, cria instancia
+WhatsApp e gera QR Code. Veja `homelab/proxmox.md` para deploy em Proxmox.
 
 ### GitHub Secrets
 
@@ -79,6 +61,13 @@ Seguir `homelab/cloudflare-tunnel.md`.
 | `EVOLUTION_API_KEY` | API key da instancia |
 | `EVOLUTION_INSTANCE` | Nome da instancia |
 | `RECIPIENTS` | Destinatarios separados por virgula |
+
+Variaveis opcionais (Settings → Variables → Actions):
+
+| Variable | Padrao | Descricao |
+|----------|--------|-----------|
+| `CARDAPIO_URL` | URL oficial UFCA | Pagina de cardapios |
+| `LOG_LEVEL` | INFO | DEBUG, INFO, WARNING, ERROR |
 
 ### Execucao local
 
