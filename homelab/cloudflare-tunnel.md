@@ -60,7 +60,7 @@ Ou faça manualmente no painel do Cloudflare (DNS → CNAME apontando para `<UUI
 ### 5. Subir os containers
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 6. Testar
@@ -83,7 +83,7 @@ ingress:
   - service: http_status:404
 ```
 
-Suba com `docker-compose up -d cloudflare-tunnel` e veja a URL efemera
+Suba com `docker compose up -d cloudflare-tunnel` e veja a URL efemera
 nos logs: `docker logs cloudflare-tunnel`.
 
 URLs efemeras mudam a cada reinicio. Atualize `EVOLUTION_API_URL` no
@@ -107,7 +107,7 @@ Isso garante que apenas você acesse o painel administrativo.
 Se não precisar do painel administrativo após setup:
 
 ```yaml
-# No docker-compose.yml, adicione à configuração do evolution-api:
+No `docker-compose.yml`, adicione a configuracao do evolution-api:
 environment:
   AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "false"
 ```
