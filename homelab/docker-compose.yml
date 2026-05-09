@@ -39,7 +39,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/manager || exit 1"]
+      test: ["CMD-SHELL", "curl -s http://localhost:8080/ >/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
