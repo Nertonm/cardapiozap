@@ -21,7 +21,7 @@ services:
   evolution-api:
     # 2.3.7 e a ultima linha estavel antes da ativacao por licenca introduzida em 2.4.0.
     # Tambem inclui correcoes de Baileys/WebSocket que evitam a falha de QR code nesta stack.
-    image: evoapicloud/evolution-api:2.3.7
+    image: evoapicloud/evolution-api:v2.3.7
     container_name: evolution-api
     restart: unless-stopped
     ports:
