@@ -19,7 +19,7 @@ services:
       start_period: 10s
 
   evolution-api:
-    image: atendai/evolution-api:latest
+    image: evolutionapi/evolution-api:latest
     container_name: evolution-api
     restart: unless-stopped
     ports:
