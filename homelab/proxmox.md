@@ -28,7 +28,7 @@ Dentro do container:
 
 ```bash
 apt update && apt install -y git curl
-git clone https://github.com/seu-usuario/cardapiozap.git /opt/cardapiozap
+git clone https://github.com/nertonm/cardapiozap.git /opt/cardapiozap
 cd /opt/cardapiozap/homelab
 
 cp .env.example .env

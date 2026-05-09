@@ -1,4 +1,23 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: evolution-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: evolution
+      POSTGRES_DB: evolution
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   evolution-api:
     image: atendai/evolution-api:latest
     container_name: evolution-api
@@ -11,8 +30,14 @@ services:
       - evolution_instances:/evolution/instances
     env_file:
       - .env
+    environment:
+      DATABASE_PROVIDER: postgresql
+      DATABASE_URL: postgresql://evolution:evolution@postgres:5432/evolution
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -36,6 +61,8 @@ services:
 volumes:
   evolution_instances:
     name: evolution_instances
+  pgdata:
+    name: evolution_pgdata
 
 networks:
   app_net:
