@@ -98,6 +98,17 @@ ls -la /root/qrcode.png
 scp root@<ip-do-lxc>:/root/qrcode.png .
 ```
 
+O QR expira rapido (em poucos segundos). Se o WhatsApp acusar codigo invalido:
+
+```bash
+cd /opt/cardapiozap/homelab
+./setup.sh
+ls -lah /root/qrcode.png
+scp root@<ip-do-lxc>:/root/qrcode.png .
+```
+
+Escaneie imediatamente apos copiar o arquivo.
+
 Escaneie com WhatsApp (Configuracoes → Dispositivos conectados).
 
 ## GitHub Secrets

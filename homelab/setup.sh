@@ -26,6 +26,16 @@ warn() { echo -e "${YELLOW}[!]${NC} $*"; }
 err()  { echo -e "${RED}[ERRO]${NC} $*" >&2; exit 1; }
 info() { echo ">>> $*"; }
 
+mask_secret() {
+    local val="${1:-}"
+    local len=${#val}
+    if [ "$len" -le 8 ]; then
+        printf '********'
+        return
+    fi
+    printf '%s****%s' "${val:0:4}" "${val: -4}"
+}
+
 # -----------------------------------------------------------
 # 1. .env
 # -----------------------------------------------------------
@@ -104,14 +114,59 @@ else
 fi
 
 # QR Code
-QR=$(curl -sf -H "apikey: $INSTANCE_KEY" \
-    http://localhost:8080/instance/connect/cardapiozap | \
-    python3 -c "import sys,json; print(json.load(sys.stdin).get('qrcode',''))" 2>/dev/null || true)
+CONNECT_JSON=""
+QR=""
 
-if [ -n "$QR" ]; then
-    echo "$QR" | base64 -d > /root/qrcode.png
-    log "QR Code: /root/qrcode.png"
-    echo "  scp root@<ip>:/root/qrcode.png ."
+# A conexao com o WhatsApp pode levar alguns segundos; tentamos em loop antes de falhar.
+for i in $(seq 1 20); do
+    CONNECT_JSON=$(curl -sf -H "apikey: $INSTANCE_KEY" http://localhost:8080/instance/connect/cardapiozap 2>/dev/null || true)
+    QR=$(printf '%s' "$CONNECT_JSON" | python3 -c "import sys,json
+
+KEYS = ('qrcode','base64','code','qr','qrCode')
+
+def pick(o):
+    if isinstance(o, dict):
+        for k in KEYS:
+            v = o.get(k)
+            if isinstance(v, str) and v:
+                return v
+        for v in o.values():
+            if isinstance(v, (dict, list)):
+                r = pick(v)
+                if r:
+                    return r
+    elif isinstance(o, list):
+        for v in o:
+            if isinstance(v, (dict, list)):
+                r = pick(v)
+                if r:
+                    return r
+    return ''
+
+try:
+    data = json.load(sys.stdin)
+    print(pick(data))
+except Exception:
+    print('')" 2>/dev/null || true)
+
+    if [ -n "$QR" ]; then
+        break
+    fi
+    sleep 3
+done
+
+QR_BASE64="${QR#data:image/png;base64,}"
+if [ -n "$QR_BASE64" ] && printf '%s' "$QR_BASE64" | base64 -d >/root/qrcode.png 2>/dev/null; then
+    QR_SIZE=$(wc -c < /root/qrcode.png | tr -d '[:space:]')
+    QR_MAGIC=$(head -c 8 /root/qrcode.png | od -An -tx1 | tr -d '[:space:]')
+    if [ "${QR_SIZE:-0}" -gt 1000 ] && [ "$QR_MAGIC" = "89504e470d0a1a0a" ]; then
+        log "QR Code: /root/qrcode.png"
+        echo "  scp root@<ip>:/root/qrcode.png ."
+    else
+        rm -f /root/qrcode.png
+        warn "QR retornado invalido (arquivo corrompido ou formato inesperado)"
+        echo "  curl -H 'apikey: $INSTANCE_KEY' http://localhost:8080/instance/connect/cardapiozap"
+    fi
 else
     warn "Nao foi possivel obter QR Code"
     echo "  curl -H 'apikey: $INSTANCE_KEY' http://localhost:8080/instance/connect/cardapiozap"
@@ -175,8 +230,8 @@ echo ""
 echo "Containers:"
 docker compose ps --format "  {{.Name}}: {{.Status}}"
 echo ""
-echo "API Key global    : ${API_KEY}"
-echo "API Key instancia : ${INSTANCE_KEY}"
+echo "API Key global    : $(mask_secret "$API_KEY")"
+echo "API Key instancia : $(mask_secret "$INSTANCE_KEY")"
 echo ""
 
 if [ -n "${DOMINIO:-}" ]; then

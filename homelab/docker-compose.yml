@@ -37,6 +37,7 @@ services:
       DATABASE_CONNECTION_URI: postgresql://evolution:evolution@postgres:5432/evolution
       CACHE_REDIS_ENABLED: "false"
       CACHE_LOCAL_ENABLED: "true"
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "false"
     depends_on:
       postgres:
         condition: service_healthy
