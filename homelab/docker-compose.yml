@@ -19,7 +19,7 @@ services:
       start_period: 10s
 
   evolution-api:
-    image: evolutionapi/evolution-api:latest
+    image: atendai/evolution-api:latest
     container_name: evolution-api
     restart: unless-stopped
     ports:
@@ -67,3 +67,6 @@ volumes:
 networks:
   app_net:
     name: cardapiozap_net
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
