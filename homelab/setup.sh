@@ -97,7 +97,7 @@ else
     curl -sf -X POST http://localhost:8080/instance/create \
         -H "Content-Type: application/json" \
         -H "apikey: $API_KEY" \
-        -d "{\"instanceName\":\"cardapiozap\",\"token\":\"$INSTANCE_KEY\",\"qrcode\":true}" \
+        -d "{\"instanceName\":\"cardapiozap\",\"token\":\"$INSTANCE_KEY\",\"qrcode\":true,\"integration\":\"WHATSAPP-BAILEYS\"}" \
         >/dev/null
     log "Instancia criada"
 fi
